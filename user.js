@@ -3,14 +3,25 @@ const Schema = mongoose.Schema
 const crypto = require('crypto')
 var config = require('./config')
 
+const Commen = new Scheam({
+    username : String,
+    content : String,    
+    createtime : Date,
+})
+
+const Board = new Schema({
+    createTime : Date,
+    modifyTime : Date,
+    title : String,
+    content : String,
+    comments : [Commen]
+})
+
 const User = new Schema({
     username: String,
     password: String,
     admin: { type: Boolean, default: false },
-    data : [{
-        title:String,
-        content:String
-    }]
+    board : [Board]
 })
 
 // create new User document
@@ -34,7 +45,10 @@ User.statics.findOneByUsername = function(username) {
         username
     }).exec()
 }
-
+User.statics.postPost = function(body){
+    const {username, title, content} = body;
+    return this.updateOne({username},{$push:{"data" : {title,content}}});
+}
 // verify the password of the User documment
 User.methods.verify = function(password) {
   const encrypted = crypto.createHmac('sha1', config.secret)
@@ -48,5 +62,6 @@ User.methods.assignAdmin = function() {
     this.admin = true
     return this.save()
 }
+
 
 module.exports = mongoose.model('User', User)
