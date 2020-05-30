@@ -1,7 +1,8 @@
 const mongoose = require('mongoose');
+const config = require('./config')
 module.exports = () => {
   function connect() {
-    mongoose.connect('mongodb://localhost:27017/test',{ useUnifiedTopology: true, useNewUrlParser: true }, function(err) {
+    mongoose.connect(config.mongodbUri,{ useUnifiedTopology: true, useNewUrlParser: true }, function(err) {
       if (err) {
         console.error('mongodb connection error', err);
       }

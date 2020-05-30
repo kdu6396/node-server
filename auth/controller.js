@@ -134,8 +134,16 @@ exports.check = (req, res) => {
 }
 
 exports.insert = async (req,res)=>{
-    const {username, title, content } = req.body;
-    const user = await User.update({username},{$push:{"data" : {title,content}}});
-    console.log(user);
-    res.send();
+    
+    const user = await User.postPost(req.body);
+    if(user.nModified===1){
+        res.status(200).json({
+            message: "post successfully"
+        })
+    } else {
+        res.status(409).json({
+            message: "username not found"
+        })
+    }
+    
 }
