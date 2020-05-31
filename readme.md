@@ -32,7 +32,7 @@
             - 성공 응답과 함께 성공 메시지 전송
         4) 동일한 ID가 있다면 실패 응답와 함께 실패 메시지 전송
 
-    2. 로그인 (`POST` : /api/login)
+    2. 로그인 (POST : /api/login)
         1) body에서 ID와 password를 받음
         2) users 컬렉션에서 ID 조회하고 없다면 상태 응답 409와 함께 실패 메시지 전송
         3) ID가 있다면 해당 다큐먼트의 password 확인
@@ -48,10 +48,13 @@
     1. 게시글 등록 (POST : /api/post)
         1) 토큰 인증 절차를 선행해야 함 (미들웨어 등록)
         2) 토큰에 기록된 ObjectId를 Post Model에 붙여서 등록
+
     2. 게시글 조회 (GET : /api/post)
         1) 모든 게시글 조회
         2) populate를 이용해 게시글과 User를 연결함
+
     3. 게시글 수정 (PUT : /api/post)
+
     4. 게시글 삭제 (DELETE : /api/post)
 
 ## 고민
