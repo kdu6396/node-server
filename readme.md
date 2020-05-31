@@ -1,7 +1,7 @@
 # NODE-SERVER 
 
 
-**노드 Rest API** + **Mongo DB** with Mongoose 공부를 위한
+`노드` `Rest API` with `Express` + `Mongo DB` with `Mongoose` 공부를 위한
 게시판 토이 프로젝트
 ### 개발기록
 ## 동작 정의
@@ -48,26 +48,48 @@
     1. 게시글 등록 (POST : /api/post)
         1) 토큰 인증 절차를 선행해야 함 (미들웨어 등록)
         2) 토큰에 기록된 ObjectId를 Post Model에 붙여서 등록
+        3) 응답메시지에 post_id 전달
 
-    2. 게시글 조회 (GET : /api/post)
+    2. 게시글 전체 조회 (GET : /api/post)
         1) 모든 게시글 조회
         2) populate를 이용해 게시글과 User를 연결함
 
     3. 게시글 수정 (PUT : /api/post)
+        1) body에서 post_id를 확인
+        2) post_id를 조회해 해당 document의 title, content 수정
+        3) nModified가 1이라면 성공 응답, 그 외엔 실패 응답
 
     4. 게시글 삭제 (DELETE : /api/post)
+        1) body에서 post_id 확인 후 해당 document 삭제
+        2) deletedCount가 1이라면 성공 응답, 그 외엔 실패 응답
 
 ## 고민
 
-#### 토큰 인증 절차를 어디에 두어야 최소한의 인증으로 세션을 유지시킬 수 있을까
+#### # 토큰 인증 절차를 어디에 두어야 최소한의 인증으로 세션을 유지시킬 수 있을까
 
 
-#### 사용자와 게시글을 연결하는 가장 좋은 구조는 무엇일까
+#### # 사용자와 게시글을 연결하는 가장 좋은 구조는 무엇일까
  - user가 post의 ref를 기억하는 방법 
    - user 별로 post 목록을 보여줄 때 유용할 것 같다.
  - **post가 user의 ref를 기억하는 방법** `채택`
    - post를 생성하는 작업이 간편할 듯 하다.
    - 특정 user의 모든 post를 찾는 작업을 한다면 느릴 수 있을것 같다.
      - 해당 user의 ObjectId를 통해 검색. -> `post.find({_id:user._id})`
+> 결론 : 현재 특정 user의 post를 조회하는 기능을 구현할 예정이 없기 때문에 post에 user의 ref를 연결한다.
+#### # 게시글의 구분을 위한 방법
+ - **ObjectId를 사용하는 방법** `채택`
+    - ObjectId를 요청에 포함시켜야 하기 때문에 프론트엔드에서 관리하기 어려울 것이라 생각됨.
+ - 따로 넘버링을 해서 기록하는 방법
+    - 유일한 ObjectId가 있는데 따로 숫자를 기록한다는 것은 낭비가 아닐까?  
 
-#### 게시글의 구분을 위해 ObjectId를 그대로 사용해야 하나? 아니면 넘버링으로 관리해야 하나?
+> 결론 : DB 낭비를 줄이기 위해 ObjectId를 사용하기로 결정.
+
+#### # Model의 statics method를 화살표 함수로 작성했을 때 this를 사용하면 오류가 난다.
+```
+Post.statics.findAllPosts = () => {
+    return this.find({}).populate('author');
+}
+// 현재 Post는 Schema 형태로 Model이 되기 전 단계이다.
+// schema 에는 find 라는 메소드가 없기 때문에 사용할 수 없다.
+```
+> 결론 : 화살표 함수가 아닌 익명 함수를 통해 런타임에 this가 결정되도록 한다.
