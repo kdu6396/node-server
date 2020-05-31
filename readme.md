@@ -23,8 +23,8 @@
 
 현재 사용자 인증은 다음과 같이 이루어진다.
 
-    1. 사용자 등록
-        1) POST 메소드로 ID와 password를 확인
+    1. 사용자 등록 (POST : /api/register)
+        1) body에서 ID와 password를 확인
         2) Mongo DB 의 users 컬렉션을 조회해 동일한 ID가 있는지 확인
         3) 동일한 ID가 없는 경우
             - 첫 번째 유저라면 관리자 설정
@@ -32,19 +32,27 @@
             - 성공 응답과 함께 성공 메시지 전송
         4) 동일한 ID가 있다면 실패 응답와 함께 실패 메시지 전송
 
-    2. 로그인
-        1) POST 메소드로 ID와 password를 받음
+    2. 로그인 (`POST` : /api/login)
+        1) body에서 ID와 password를 받음
         2) users 컬렉션에서 ID 조회하고 없다면 상태 응답 409와 함께 실패 메시지 전송
         3) ID가 있다면 해당 다큐먼트의 password 확인
             - 맞았을 경우 토큰 생성하고 바디에 포함시켜 상태 200 전달
             - 틀렸을 경우 오류 응답 
 
-    3. 토큰 인증 절차
-        1) GET 메소드로 Header에 x-access-token 정보를 확인
+    3. 토큰 인증 절차 (미들웨어)
+        1) header의 x-access-token 정보를 확인
         2) 해당 토큰을 verify후 디코딩
         3) 토큰이 유효한다면 디코딩된 정보를 성공 응답과 함께 전송
         4) 토큰이 잘못되었거나 만기되었다면 오류 응답
-
+### #2 : 게시글 CRUD 작성
+    1. 게시글 등록 (POST : /api/post)
+        1) 토큰 인증 절차를 선행해야 함 (미들웨어 등록)
+        2) 토큰에 기록된 ObjectId를 Post Model에 붙여서 등록
+    2. 게시글 조회 (GET : /api/post)
+        1) 모든 게시글 조회
+        2) populate를 이용해 게시글과 User를 연결함
+    3. 게시글 수정 (PUT : /api/post)
+    4. 게시글 삭제 (DELETE : /api/post)
 
 ## 고민
 
@@ -52,9 +60,11 @@
 
 
 #### 사용자와 게시글을 연결하는 가장 좋은 구조는 무엇일까
- - user가 post의 ref를 기억하는 방법
+ - user가 post의 ref를 기억하는 방법 
    - user 별로 post 목록을 보여줄 때 유용할 것 같다.
- - post가 user의 ref를 기억하는 방법
+ - **post가 user의 ref를 기억하는 방법** `채택`
    - post를 생성하는 작업이 간편할 듯 하다.
+   - 특정 user의 모든 post를 찾는 작업을 한다면 느릴 수 있을것 같다.
+     - 해당 user의 ObjectId를 통해 검색. -> `post.find({_id:user._id})`
 
-#### 어려웡 ㅋ
+#### 게시글의 구분을 위해 ObjectId를 그대로 사용해야 하나? 아니면 넘버링으로 관리해야 하나?
