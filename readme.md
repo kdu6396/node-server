@@ -4,7 +4,7 @@
 `노드` `Rest API` with `Express` + `Mongo DB` with `Mongoose` 공부를 위한
 게시판 토이 프로젝트
 ### 개발기록
-## 동작 정의
+## 개요
  - 사용자 인증 구현
    - 패스워드 암호화 저장
    - JWT를 이용한 토큰 생성 후 전달 + 클라이언트 헤더를 통해 토큰을 확인 후 인증
@@ -54,13 +54,13 @@
         1) 모든 게시글 조회
         2) populate를 이용해 게시글과 User를 연결함
 
-    3. 게시글 수정 (PUT : /api/post)
-        1) body에서 post_id를 확인
+    3. 게시글 수정 (PUT : /api/post/postid)
+        1) url에서 post_id를 확인
         2) post_id를 조회해 해당 document의 title, content 수정
         3) nModified가 1이라면 성공 응답, 그 외엔 실패 응답
 
-    4. 게시글 삭제 (DELETE : /api/post)
-        1) body에서 post_id 확인 후 해당 document 삭제
+    4. 게시글 삭제 (DELETE : /api/post/postid)
+        1) url에서 postid 확인 후 해당 document 삭제
         2) deletedCount가 1이라면 성공 응답, 그 외엔 실패 응답
 
 ## 고민
@@ -77,12 +77,12 @@
      - 해당 user의 ObjectId를 통해 검색. -> `post.find({_id:user._id})`
 > 결론 : 현재 특정 user의 post를 조회하는 기능을 구현할 예정이 없기 때문에 post에 user의 ref를 연결한다.
 #### # 게시글의 구분을 위한 방법
- - **ObjectId를 사용하는 방법** `채택`
+ - ObjectId를 사용하는 방법 
     - ObjectId를 요청에 포함시켜야 하기 때문에 프론트엔드에서 관리하기 어려울 것이라 생각됨.
- - 따로 넘버링을 해서 기록하는 방법
+ - **따로 넘버링을 해서 기록하는 방법** `채택`
     - 유일한 ObjectId가 있는데 따로 숫자를 기록한다는 것은 낭비가 아닐까?  
 
-> 결론 : DB 낭비를 줄이기 위해 ObjectId를 사용하기로 결정.
+> 결론 : API 사용의 편의성을 높이기 위해 포스트 넘버를 사용하기로 결정.
 
 #### # Model의 statics method를 화살표 함수로 작성했을 때 this를 사용하면 오류가 난다.
 ```
