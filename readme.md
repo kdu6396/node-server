@@ -63,6 +63,20 @@
         1) url에서 postid 확인 후 해당 document 삭제
         2) deletedCount가 1이라면 성공 응답, 그 외엔 실패 응답
 
+### #3 : 댓글 CRD 작성
+    1. 댓글 등록 (POST : /api/comment/postid)
+        1) 토큰 정보의 user id 확인
+        2) postid를 통해 post의 object id를 조회하고 comment 모델에 입력
+        3) request body 정보를 모델에 입력, 컬렉션에 저장
+
+    2. 특정 게시글의 댓글 조회 (GET : /api/comment/postid) 
+        1) postid를 통해 post의 object id를 조회
+        2) post object id와 매칭되는 정보 조회
+        3) 조회하면서 populate({path:'author', select : 'userId'}) 사용
+        4) 조회된 정보 전송
+
+    3. 댓글 삭제 (DELETE : /api/comment/commentid)
+        1) url의 commentid에 해당하는 comment 삭제
 ## 고민
 
 #### # 토큰 인증 절차를 어디에 두어야 최소한의 인증으로 세션을 유지시킬 수 있을까
@@ -75,7 +89,8 @@
    - post를 생성하는 작업이 간편할 듯 하다.
    - 특정 user의 모든 post를 찾는 작업을 한다면 느릴 수 있을것 같다.
      - 해당 user의 ObjectId를 통해 검색. -> `post.find({_id:user._id})`
-> 결론 : 현재 특정 user의 post를 조회하는 기능을 구현할 예정이 없기 때문에 post에 user의 ref를 연결한다.
+> 결론 : 현재 특정 user의 post를 조회하는 기능을 구현할 예정이 없기 때문에 post에 user의 ref를 연결한다. 추후 data 조회 속도를 비교해 봐야겠다.
+
 #### # 게시글의 구분을 위한 방법
  - ObjectId를 사용하는 방법 
     - ObjectId를 요청에 포함시켜야 하기 때문에 프론트엔드에서 관리하기 어려울 것이라 생각됨.
@@ -93,3 +108,9 @@ Post.statics.findAllPosts = () => {
 // schema 에는 find 라는 메소드가 없기 때문에 사용할 수 없다.
 ```
 > 결론 : 화살표 함수가 아닌 익명 함수를 통해 런타임에 this가 결정되도록 한다.
+
+
+#### # User와 Post 삭제 관련
+ - Post는 User를 참조하고, Comment는 Post를 참조한다.
+ - User 삭제시 Post를 삭제? Post 삭제시 Comment 삭제?
+ - 삭제하지 않아도 문제는 없겠지만, 예외처리를 확실하게 해야할 것 같다.

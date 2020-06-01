@@ -1,10 +1,35 @@
 const mongoose = require('mongoose')
+const Schema = mongoose.Schema;
 
-const Comment = mongoose.Schema({
-    username : String,
-    content : String,    
+const Comment = new Schema({
+    commentid : {type:Number, required : true},
+    content : String,   
     createtime : Date,
+    author : {type:Schema.Types.ObjectId , ref:'User'},
+    post : {type:Schema.Types.ObjectId, ref:'Post'}
 })
 
+Comment.statics.createComment = function(item){
+    const comment = new this({
+        commentid : item.commentid,
+        createTime : Date.now(),
+        content : item.content,
+        author : item.user_id,
+        post : item.post_id
+    })
+    return comment.save();
+}
+
+Comment.statics.getCommentsByPostId = function(post_id) {
+    return this.find({post : post_id}).populate({path:'author',select:'userId'});
+}
+
+Comment.statics.deleteComment = function(commentid) {
+    return this.deleteOne({commentid});
+}
+
+Comment.statics.deleteCommentByPostId = function(post_id) {
+    return this.deleteMany({post:post_id});
+}
 
 module.exports = mongoose.model('Comment', Comment);

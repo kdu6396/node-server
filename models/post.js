@@ -1,7 +1,5 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
-var config = require('../config')
-const Count = require('./count')
 
 const Post = new Schema({
     postid : {type:Number, required : true},
@@ -23,6 +21,10 @@ Post.statics.createPost = function(item, _id){
         author : _id
     })
     return post.save();
+}
+
+Post.statics.findByPostId = function(postid) {
+    return this.findOne({postid});
 }
 
 Post.statics.findAllPosts = function() {
