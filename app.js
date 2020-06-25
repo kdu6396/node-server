@@ -12,11 +12,15 @@ var app = express();
 
 var port = process.env.port || 5000;
 
-db();
+if(!process.env.NODE_ENV){
+  db();
+  app.use(logger('dev'));
+}
+
 
 app.set('jwt-secret',config.secret);
 app.set('view engine', 'jade');
-app.use(logger('dev'));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());

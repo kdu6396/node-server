@@ -21,6 +21,8 @@ exports.save = async (req,res)=> {
 }
 
 exports.getAll = async (req,res)=> {
+    const type = req.query.type
+    console.log(type);
     try {
         const posts = await Post.findAllPosts();
         res.status(200).send(posts);
