@@ -28,7 +28,7 @@ Post.statics.findByPostId = function(postid) {
 }
 
 Post.statics.findAllPosts = function() {
-    return this.find({}).populate('author');
+    return this.find({}).populate('author','userId').sort("-createTime").limit(10);
 }
 
 Post.statics.deletePost = function(postid) {
