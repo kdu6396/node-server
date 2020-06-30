@@ -1,6 +1,7 @@
 const User = require('../models/user.js')
 const jwt = require('jsonwebtoken')
 
+
 exports.register = (req,res)=>{
     const {userId, password} = req.body;
     let newUser = null;
@@ -43,7 +44,9 @@ exports.register = (req,res)=>{
 
 exports.login =(req,res,next)=>{
     const {userId,password} = req.body
+    const ip_addr = req.headers['x-forwarded-for'] || req.connection.remoteAddress
     const secret = req.app.get('jwt-secret');
+    const timestamp = new Data().getTime();
 
     const check = (user)=>{
         if(!user){
@@ -54,6 +57,8 @@ exports.login =(req,res,next)=>{
                     jwt.sign({
                         _id : user._id,
                         username : user.username,
+                        ip_addr : ip_addr,
+                        timestamp : timestamp,
                         admin : user.admin
                     },
                     secret,
@@ -66,12 +71,12 @@ exports.login =(req,res,next)=>{
                         resolve(token);
                     });
                 })
-                
+
             } else {
                 throw new Error('login failed');
             }
         }
-        
+
     }
 
     const respond = (token)=>{
@@ -89,4 +94,3 @@ exports.login =(req,res,next)=>{
 
     User.findOneByUserId(userId).then(check).then(respond).catch(onError);
 }
-
