@@ -46,7 +46,7 @@ exports.login =(req,res,next)=>{
     const {userId,password} = req.body
     const ip_addr = req.headers['x-forwarded-for'] || req.connection.remoteAddress
     const secret = req.app.get('jwt-secret');
-    const timestamp = new Data().getTime();
+    const timestamp = new Date().getTime();
 
     const check = (user)=>{
         if(!user){
