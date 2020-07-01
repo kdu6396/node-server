@@ -24,7 +24,11 @@ Post.statics.createPost = function(item, _id){
 }
 
 Post.statics.findByPostId = function(postid) {
-    return this.findOne({postid});
+    return this.findOneAndUpdate({postid});
+}
+
+Post.statics.increasePostViews = function(postid) {
+    return this.findOneAndUpdate({postid},{$inc : {views:1}},{new:true});
 }
 
 Post.statics.findAllPosts = function() {

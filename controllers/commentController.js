@@ -28,7 +28,7 @@ exports.getCommentsByPostId = async (req,res)=> {
         const comments = await Comment.getCommentsByPostId(post._id);
         res.status(200).send(comments);
     } catch (err){
-        console.log(err);//DB 조회 실패시 상태코드는 무엇인가..
+        console.log(err);
         res.status(407).json({
             "message" : "Fetch comment failed"
         })
