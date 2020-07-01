@@ -21,10 +21,20 @@ exports.save = async (req,res)=> {
 }
 
 exports.getAll = async (req,res)=> {
-    const type = req.query.type
-    console.log(type);
     try {
         const posts = await Post.findAllPosts();
+        res.status(200).send(posts);
+    } catch (err){
+        console.log(err);//DB 조회 실패시 상태코드는 무엇인가..
+        res.status(407).json({
+            "message" : "Fetch post failed"
+        })
+    }
+}
+exports.getOne = async (req,res)=> {
+    const postid = req.params.postid;
+    try {
+        const posts = await Post.findByPostId(postid);
         res.status(200).send(posts);
     } catch (err){
         console.log(err);//DB 조회 실패시 상태코드는 무엇인가..
