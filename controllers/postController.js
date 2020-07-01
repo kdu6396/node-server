@@ -1,73 +1,73 @@
 const Post = require('../models/post')
 const Count = require('../models/count')
 
-exports.save = async (req,res)=> {
-    const {_id} = req.decoded;
+exports.save = async (req, res) => {
+    const { _id } = req.decoded;
     console.log(req.decoded);
     try {
         const count = await Count.getNextNum('post');
         req.body.postid = count.lastNum;
-        const post = await Post.createPost(req.body,_id);
+        const post = await Post.createPost(req.body, _id);
         res.status(200).json({
-            "message" : "Save post successfully",
-            "postid" : post.postid
+            "message": "Save post successfully",
+            "postid": post.postid
         });
-    } catch (err){
+    } catch (err) {
         console.log(err);
         res.json({
-            "message" : err.message
+            "message": err.message
         })
     }
 }
 
-exports.getAll = async (req,res)=> {
+exports.getAll = async (req, res) => {
     try {
         const posts = await Post.findAllPosts();
         res.status(200).send(posts);
-    } catch (err){
+    } catch (err) {
         console.log(err);//DB 조회 실패시 상태코드는 무엇인가..
         res.status(407).json({
-            "message" : "Fetch post failed"
+            "message": "Fetch post failed"
         })
     }
 }
-exports.getOne = async (req,res)=> {
+exports.getOne = async (req, res) => {
     const postid = req.params.postid;
+    if (req.cookies.postids && req.cookies.postids.indexOf(postid) !== -1) {
+        console.log(req.cookies.postids);
+        return res.status(204).end();
+    }
     try {
-        if(req.cookies.postids && req.cookies.postids.indexOf(postid)!==-1){          
-            return res.status(204).end();
+        const posts = await Post.findByPostId(postid);
+        if (!req.cookies.postids) {
+            req.cookies.postids = [postid];
         } else {
-            const posts = await Post.findByPostId(postid);
-            if(!req.cookies.postids){
-                req.cookies.postids=[postid];
-            } else {
-                req.cookies.postids.push(postid);
-            }
-            res.cookie('postids', req.cookies.postids, {
-                maxAge : 300000
-            })
-            return res.status(200).send(posts);
+            req.cookies.postids.push(postid);
         }
-    } catch (err){
+        res.cookie('postids', req.cookies.postids, {
+            maxAge: 300000
+        })
+        res.status(200).send(posts);
+    } catch (err) {
         console.log(err);//DB 조회 실패시 상태코드는 무엇인가..
         res.status(407).json({
-            "message" : "Fetch post failed"
+            "message": "Fetch post failed"
         })
     }
 }
 
-exports.delete = async (req,res) => {
+exports.delete = async (req, res) => {
     console.log(req.params);
     const postid = req.params.postid;
     try {
         const post = await Post.deletePost(postid);
-        if(post.deletedCount===1){
+        if (post.deletedCount === 1) {
             res.status(200).json({
-                "message" : "Delete post successfully"
+                "message": "Delete post successfully"
             });
         }
         throw new Error('cannot match post id');
-    } catch (err){
+    } catch (err) {
         res.status(407).json({
             "message": err.message
         })
@@ -75,18 +75,18 @@ exports.delete = async (req,res) => {
 }
 
 
-exports.update = async (req,res) => {
+exports.update = async (req, res) => {
     req.body.postid = req.params.postid;
     try {
         const post = await Post.updatePost(req.body);
         console.log(post);
-        if(post.nModified){
+        if (post.nModified) {
             res.status(200).json({
-                "message" : "Update post successfully"
+                "message": "Update post successfully"
             });
         }
         throw new Error('cannot match post id');
-    } catch (err){
+    } catch (err) {
         console.log(err);
         res.status(407).json({
             "message": err.message
