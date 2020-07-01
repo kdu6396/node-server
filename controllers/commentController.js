@@ -23,16 +23,6 @@ exports.save = async (req,res)=> {
 }
 
 exports.getCommentsByPostId = async (req,res)=> {
-    console.log(req.cookies.comment);
-    if(!req.cookies.comment){
-        res.cookie('comment',["ok","bc","de"],{
-            maxAge:30000
-        })
-    } else {
-        res.cookie('comment', [...req.cookies.comment, "11"], {
-            maxAge : 30000
-        })
-    }
     try {
         const post = await Post.findByPostId(req.params.postid);
         const comments = await Comment.getCommentsByPostId(post._id);
