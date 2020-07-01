@@ -33,19 +33,18 @@ exports.getAll = async (req, res) => {
 }
 exports.getOne = async (req, res) => {
     const postid = req.params.postid;
-    if (req.cookies.postids && req.cookies.postids.indexOf(postid) !== -1) {
-        
+    if (req.cookies.postids && req.cookies.postids.indexOf(postid) !== -1) {     
         return res.status(204).end();
     }
     try {
         const posts = await Post.increasePostViews(postid);
         if (!req.cookies.postids) {
             res.cookie('postids', [postid], {
-                maxAge: 300000
+                maxAge: 3600*24
             })
         } else {
             res.cookie('postids', [...req.cookies.postids, postid], {
-                maxAge: 300000
+                maxAge: 3600*24
             })
         }
         
