@@ -24,6 +24,7 @@ Post.statics.createPost = function(item, _id){
 }
 
 Post.statics.findByPostId = function(postid) {
+    console.log("이건뭔데 ㅡㅡ");
     return this.findOneAndUpdate({postid},{$inc : {views:1}},{new:true});
 }
 
