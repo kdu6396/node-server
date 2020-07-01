@@ -34,19 +34,21 @@ exports.getAll = async (req, res) => {
 exports.getOne = async (req, res) => {
     const postid = req.params.postid;
     if (req.cookies.postids && req.cookies.postids.indexOf(postid) !== -1) {
-        console.log(req.cookies.postids);
+        
         return res.status(204).end();
     }
     try {
         const posts = await Post.increasePostViews(postid);
         if (!req.cookies.postids) {
-            req.cookies.postids = [postid];
+            res.cookie('postids', [postid], {
+                maxAge: 300000
+            })
         } else {
-            req.cookies.postids.push(postid);
+            res.cookie('postids', [...req.cookies.postids, postid], {
+                maxAge: 300000
+            })
         }
-        res.cookie('postids', req.cookies.postids, {
-            maxAge: 300000
-        })
+        
         res.status(200).send(posts);
     } catch (err) {
         console.log(err);//DB 조회 실패시 상태코드는 무엇인가..
