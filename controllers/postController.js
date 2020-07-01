@@ -38,7 +38,7 @@ exports.getOne = async (req, res) => {
         return res.status(204).end();
     }
     try {
-        const posts = await Post.findByPostId(postid);
+        const posts = await Post.increasePostViews(postid);
         if (!req.cookies.postids) {
             req.cookies.postids = [postid];
         } else {
